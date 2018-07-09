@@ -5,3 +5,4 @@ semantic/tasks/
 .shadow-cljs/
 .nrepl-port
 resources/
+semantic/app/cljs-runtime

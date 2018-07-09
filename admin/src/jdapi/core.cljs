@@ -3,16 +3,17 @@
             [re-frame.core :as rf]
             [ajax.core :refer [GET POST]]
             [jdapi.views :as views]
-            [jdapi.styles :as styles]
+            [jdapi.styles :refer [styles]]
             ))
 
-(def pages
+#_(def pages
   {:home  #'views/home-page})
 
 (defn page []
   [:div
    [styles]
-   [(pages @(rf/subscribe [:page]))]])
+   [views/home-page]
+   #_[(pages @(rf/subscribe [:page]))]])
 
 
 ;; -------------------------

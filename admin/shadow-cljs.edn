@@ -29,7 +29,7 @@
  {:jdapi
   {:target     :browser
    :output-dir "resources/public/js"
-   :asset-path "/jdapi/js"
+   :asset-path "."
    :modules    {:app {:entries [jdapi.core]
                       :prepend "(function(){"
                       :append  "}).call(this)"}}
