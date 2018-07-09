@@ -4,3 +4,4 @@ semantic/dist/
 semantic/tasks/
 .shadow-cljs/
 .nrepl-port
+resources/
