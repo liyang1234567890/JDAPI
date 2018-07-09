@@ -2,3 +2,5 @@ node_modules/
 package-lock.json
 semantic/dist/
 semantic/tasks/
+.shadow-cljs/
+.nrepl-port

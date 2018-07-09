@@ -10,9 +10,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "semantic-ui": "^2.3.3"
+    "create-react-class": "^15.6.2",
+    "moment": "^2.22.0",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "semantic-ui-react": "^0.79.1"
   },
   "devDependencies": {
-    "gulp-webserver": "^0.9.1"
+    "gulp-webserver": "^0.9.1",
+    "semantic-ui": "^2.3.3",
+    "shadow-cljs": "^2.4.14"
   }
 }
