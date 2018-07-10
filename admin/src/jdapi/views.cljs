@@ -1,6 +1,7 @@
 (ns jdapi.views
   (:require ["semantic-ui-react" :as se]
-            [reagent.core :as r]))
+            [reagent.core :as r]
+            [re-frame.core :as rf]))
 
 (defn colored-div []
   [:div
@@ -29,18 +30,31 @@
 
 
 
-(defn text-area []
+(defn text-area-form []
   (let [val (r/atom "")]
     (fn []
      [:> se/Form
       [:> se/TextArea
-       {:placeholder "some text"
-        ;;     :auto-height true
+       {:placeholder "REPL:"
+            :auto-height true
         :value @val
         :on-change (fn [e]
-                     ;; 
                      (reset! val (-> e .-target .-value)))
-        }]])))
+        }]
+      [:> se/Button
+       {:style {:margin-top "10px"}
+        :primary true
+        :on-click (fn [e] (rf/dispatch [:repl-input @val]))}
+       "Submit"]
+      ])))
+
+(defn feedback-message []
+  (let [repl-input (rf/subscribe [:on-repl-input])]
+    (fn []
+     [:> se/Message
+      {:info true}
+      [:> se/Message.Header "feedback"]
+      [:> se/Message.Content @repl-input]])))
 
 (defn a-div []
   [:> se/Container
@@ -49,7 +63,7 @@
     [:p ""]
     [:p ""]]
    [menu]
-   [text-area]
+   [text-area-form]
    [a-button]
    [colored-div]
    [:span "safsdkf"]
@@ -57,9 +71,98 @@
    [:span "a div"]])
 
 
+(defn side-bar []
+  (let [visible (r/atom true)]
+    (fn []
+      [:> se/Sidebar.Pushable
+       {:as se/Segment}
+       [:> se/Sidebar
+        {:visible   @visible
+         :as        se/Menu
+         :animation "overlay"
+         :icon      "labeled"
+         :inverted  true
+         :vertical  true
+         :width     "thin"}
+        [:> se/Menu.Item
+         [:> se/Header
+          {:style {:color "white"}}
+          "API管理后台"]]
+        [:> se/Menu.Item
+         [:> se/Header
+          {:style {:font-size   "16px"
+                   :font-weight "normal"
+                   :color       "#999"}}
+          "基础API"]
+         [:> se/Menu
+          {:style    {:background "rgba(0,0,0,0)"}
+           :vertical true
+           :compact  true
+           :fluid    true}
+          [:> se/Menu.Item
+           "ddd"]
+          [:> se/Menu.Item
+           "ddd"]
+          [:> se/Menu.Item
+           "ddd"]
+          [:> se/Menu.Item
+           "ddd"]]]
+        
 
+        [:> se/Menu.Item
+         [:> se/Header
+          {:style {:font-size   "16px"
+                   :font-weight "normal"
+                   :color       "#999"}}
+          "衍生API"]
+         [:> se/Menu
+          {:style    {:background "rgba(0,0,0,0)"}
+           :vertical true
+           :compact  true
+           :fluid    true}
+          [:> se/Menu.Item "ddd"]
+          [:> se/Menu.Item "ddd"]
+          [:> se/Menu.Item "ddd"]
+          [:> se/Menu.Item "ddd"]]]
+
+        [:> se/Menu.Item
+         [:> se/Header
+          {:style {:font-size   "16px"
+                   :font-weight "normal"
+                   :color       "#999"}}
+          "高级API"]
+         [:> se/Menu
+          {:style    {:background "rgba(0,0,0,0)"}
+           :vertical true
+           :compact  true
+           :fluid    true}
+          [:> se/Menu.Item "ddd"]
+          [:> se/Menu.Item "ddd"]
+          [:> se/Menu.Item "ddd"]
+          [:> se/Menu.Item "ddd"]]]
+        #_[:> se/Button
+         {:on-click (fn [e] (swap! visible not))}
+         "Hide"]
+        ]
+       [:> se/Sidebar.Pusher
+        [:> se/Segment
+         {:basic true
+          :style {:margin-left "150px"}}
+         [text-area-form]
+         [feedback-message]
+         ]]
+       ])))
+
+(defn container []
+  [:> se/Container
+   {:style {:height "700px"
+            :width "100%"
+            :margin 0
+            :padding 0}}
+   [side-bar]
+])
 
 
 (defn home-page []
   #_[:div.home "HOME"]
-  [a-div])
+  [container])

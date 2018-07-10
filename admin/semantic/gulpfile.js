@@ -82,7 +82,7 @@ if(config.rtl) {
 gulp.task('server', function() {
   gulp.src('app')
     .pipe(webserver({
-      // livereload: true,
+      livereload: false,
       // directoryListing: true,
       open: true,
       fallback: 'index.html'

@@ -37,4 +37,4 @@
                 :autoload          true
                 :use-document-host true
                 :repl-host         "localhost"
-                :after-load        usercreatedata.core/mount-components}}}}
+                :after-load        jdapi.core/mount-components}}}}

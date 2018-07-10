@@ -4,16 +4,16 @@
             [ajax.core :refer [GET POST]]
             [jdapi.views :as views]
             [jdapi.styles :refer [styles]]
+            [jdapi.events]
             ))
 
-#_(def pages
+(def pages
   {:home  #'views/home-page})
 
 (defn page []
   [:div
    [styles]
-   [views/home-page]
-   #_[(pages @(rf/subscribe [:page]))]])
+   [(pages #_@(rf/subscribe [:page]) :home)]])
 
 
 ;; -------------------------
