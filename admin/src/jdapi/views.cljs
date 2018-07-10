@@ -44,6 +44,7 @@
       [:> se/Button
        {:style {:margin-top "10px"}
         :primary true
+        :size "mini"
         :on-click (fn [e] (rf/dispatch [:repl-input @val]))}
        "Submit"]
       ])))
@@ -86,7 +87,7 @@
          :width     "thin"}
         [:> se/Menu.Item
          [:> se/Header
-          {:style {:color "white"}}
+          {:style {:color "#dcdcdc"}}
           "API管理后台"]]
         [:> se/Menu.Item
          [:> se/Header
