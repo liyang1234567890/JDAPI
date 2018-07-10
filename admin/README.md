@@ -1,4 +1,8 @@
 
+* shadow-cljs
+cd admin
+shadow-cljs watch jdapi
+
 * gulp server
 
 cd admin/semantic/app
