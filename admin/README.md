@@ -16,3 +16,4 @@ ln -s ../../resources/public/js/app.js .
 gulp build
 
 gulp server
+

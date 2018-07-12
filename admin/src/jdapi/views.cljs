@@ -3,40 +3,81 @@
             [reagent.core :as r]
             [re-frame.core :as rf]))
 
-(defn colored-div []
-  [:div
-   {:style {:background "red"
-            :color "white"}}
-   "COLORED div"])
-
-(defn a-button []
-  (let []
+(defn side-bar []
+  (let [visible (r/atom true)]
     (fn []
-      [:> se/Button
-       "Click Here"])))
-
-
-(defn menu []
-  [:> se/Menu
-   [:> se/Menu.Item
-    {:name "editorials"
-     :on-click (fn [e] (js/console.log "on-click"))}
-    "Editorials"]
-
-   [:> se/Menu.Item
-    {:name "editorials"
-     :on-click (fn [] (js/console.log "on-click"))}
-    [:span {:style {:color "blue"}} "Menu 2"]]])
-
-
+       [:> se/Sidebar.Pushable
+        {:as se/Segment}
+        [:> se/Sidebar
+         
+         {
+          :as        se/Menu
+          :animation "overlay"
+          :icon      "labeled"
+          :inverted  true
+          :vertical  true
+          :visible   @visible
+          :width     "thin"
+          }
+         [:> se/Menu.Item
+          [:> se/Header
+           {:style {:color "gray"}}
+           "API管理后台"]
+          ]
+         [:> se/Menu.Item
+          [:> se/Header
+           {:style {:font-size "20px"
+                    :color     "white"}}
+           "基础API"]
+          [:> se/Menu
+           {:vertical true
+            :compact   true
+            :fluid     true
+            }
+           [:> se/Menu.Item "第一行"]
+           [:> se/Menu.Item "第二行"]
+           [:> se/Menu.Item "第三行"]
+           ]
+          ]
+         [:> se/Menu.Item
+          [:> se/Header
+           {:style {:font-size "20px"
+                    :color     "white"}}
+           "衍生API"]
+          [:> se/Menu
+           { :vertical true
+            :compact   true
+            :fluid     true
+            }
+           [:> se/Menu.Item "第一行"]
+           [:> se/Menu.Item "第二行"]
+           [:> se/Menu.Item "第三行"]
+           ]
+          ]
+         [:> se/Menu.Item
+          [:> se/Header
+           {:style {:font-size "20px"
+                    :color     "white"}}
+           "高级API"]
+          [:> se/Menu
+           { :vertical true
+            :compact   true
+            :fluid     true
+            }
+           [:> se/Menu.Item "第一行"]
+           [:> se/Menu.Item "第二行"]
+           [:> se/Menu.Item "第三行"]
+           ]
+          ]]
+   ])))
 
 (defn text-area-form []
   (let [val (r/atom "")]
     (fn []
      [:> se/Form
       [:> se/TextArea
-       {:placeholder "REPL:"
-            :auto-height true
+       {:placeholder "Tell me more"
+        :auto-height true
         :value @val
         :on-change (fn [e]
                      (reset! val (-> e .-target .-value)))
@@ -55,102 +96,60 @@
      [:> se/Message
       {:info true}
       [:> se/Message.Header "feedback"]
-      [:> se/Message.Content @repl-input]])))
+      [:> se/Message.Content @repl-input]
+      ]
+      )
+    )
+  )
 
-(defn a-div []
-  [:> se/Container
-   {:class-name "four column doubling stackable grid"}
-   [:div#some-id.column
-    [:p ""]
-    [:p ""]]
-   [menu]
-   [text-area-form]
-   [a-button]
-   [colored-div]
-   [:span "safsdkf"]
-   [:div "dafd"]
-   [:span "a div"]])
+(defn table-message []
+  (fn []
+    [:> se/Table
+     {:fixed true}
+     [:> se/Table.Header
+      [:> se/Table.Row
+       [:> se/Table.HeaderCell "Name"]
+       [:> se/Table.HeaderCell "Status"]
+       [:> se/Table.HeaderCell "Description"]
+       ]
+      ]
+     [:> se/Table.Body
+      [:> se/Table.Row
+       [:> se/Table.Cell "john"]
+       [:> se/Table.Cell "Approved"]
+       [:> se/Table.Cell "John is a boy"]
+       ]
+      [:> se/Table.Row
+       [:> se/Table.Cell "Jamie"]
+       [:> se/Table.Cell "Approved"]
+       [:> se/Table.Cell "Jamie  is a girl"]
+       ]
+      [:> se/Table.Row
+       [:> se/Table.Cell "nnnn"]
+       [:> se/Table.Cell "Denied"]
+       [:> se/Table.Cell "nnnn is a boy"]
+       ]
+      ]
+     ]
+    )
+  )
 
+(defn side-push []
+  [:> se/Sidebar.Pusher
+   [:> se/Segment
+    {:basic  true
+     :style {
+             :margin-left "150px"
+             :margin-top  "-700px"
+             }
+     }
+    [text-area-form]
+    [feedback-message]
+    [table-message]
 
-(defn side-bar []
-  (let [visible (r/atom true)]
-    (fn []
-      [:> se/Sidebar.Pushable
-       {:as se/Segment}
-       [:> se/Sidebar
-        {:visible   @visible
-         :as        se/Menu
-         :animation "overlay"
-         :icon      "labeled"
-         :inverted  true
-         :vertical  true
-         :width     "thin"}
-        [:> se/Menu.Item
-         [:> se/Header
-          {:style {:color "#dcdcdc"}}
-          "API管理后台"]]
-        [:> se/Menu.Item
-         [:> se/Header
-          {:style {:font-size   "16px"
-                   :font-weight "normal"
-                   :color       "#999"}}
-          "基础API"]
-         [:> se/Menu
-          {:style    {:background "rgba(0,0,0,0)"}
-           :vertical true
-           :compact  true
-           :fluid    true}
-          [:> se/Menu.Item
-           "ddd"]
-          [:> se/Menu.Item
-           "ddd"]
-          [:> se/Menu.Item
-           "ddd"]
-          [:> se/Menu.Item
-           "ddd"]]]
-        [:> se/Menu.Item
-         [:> se/Header
-          {:style {:font-size   "16px"
-                   :font-weight "normal"
-                   :color       "#999"}}
-          "衍生API"]
-         [:> se/Menu
-          {:style    {:background "rgba(0,0,0,0)"}
-           :vertical true
-           :compact  true
-           :fluid    true}
-          [:> se/Menu.Item "ddd"]
-          [:> se/Menu.Item "ddd"]
-          [:> se/Menu.Item "ddd"]
-          [:> se/Menu.Item "ddd"]]]
-
-        [:> se/Menu.Item
-         [:> se/Header
-          {:style {:font-size   "16px"
-                   :font-weight "normal"
-                   :color       "#999"}}
-          "高级API"]
-         [:> se/Menu
-          {:style    {:background "rgba(0,0,0,0)"}
-           :vertical true
-           :compact  true
-           :fluid    true}
-          [:> se/Menu.Item "ddd"]
-          [:> se/Menu.Item "ddd"]
-          [:> se/Menu.Item "ddd"]
-          [:> se/Menu.Item "ddd"]]]
-        #_[:> se/Button
-         {:on-click (fn [e] (swap! visible not))}
-         "Hide"]
-        ]
-       [:> se/Sidebar.Pusher
-        [:> se/Segment
-         {:basic true
-          :style {:margin-left "150px"}}
-         [text-area-form]
-         [feedback-message]
-         ]]
-       ])))
+    ]
+   ]
+  )
 
 (defn container []
   [:> se/Container
@@ -159,9 +158,20 @@
             :margin 0
             :padding 0}}
    [side-bar]
-])
+   [side-push]
+   ])
 
+(defn a-div []
+  [:> se/Container
+   [text-area-form]
+   [feedback-message]
+   [side-bar]
+   [side-push]
+   [container]
+   [table-message]
+   ])
 
 (defn home-page []
   #_[:div.home "HOME"]
   [container])
+
