@@ -89,8 +89,10 @@
  :set-item-name
  (fn [db [_ category index value]]
    (update-in db [:api-list category]
-              (fn [lst]
+              #_(fn [lst]
                 (vec
                  (concat (take index lst)
                          (list (assoc (get lst index) :name value))
-                         (drop (inc index) lst)))))))
+                         (drop (inc index) lst))))
+              (fn [v]
+                (assoc-in v [index :name] value)))))
