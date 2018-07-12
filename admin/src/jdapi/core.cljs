@@ -5,6 +5,7 @@
             [jdapi.views :as views]
             [jdapi.styles :refer [styles]]
             [jdapi.events]
+            [re-frisk.core :refer [enable-re-frisk! enable-frisk!]]
             ))
 
 (def pages
@@ -13,7 +14,7 @@
 (defn page []
   [:div
    [styles]
-   [(pages #_@(rf/subscribe [:page]) :home)]])
+   [(pages @(rf/subscribe [:page]))]])
 
 
 ;; -------------------------
@@ -24,5 +25,8 @@
 
 (defn ^:export init! []
   (rf/dispatch-sync [:initialize-db])
+  (rf/dispatch [:set-active-page :home])
   #_(routes/hook-browser-navigation!)
-  (mount-components))
+  (mount-components)
+  (enable-re-frisk! {:x 100 :y 500})
+  (enable-frisk! {:x 100 :y 500}))
