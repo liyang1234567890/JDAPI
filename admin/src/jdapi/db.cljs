@@ -1,4 +1,8 @@
 (ns jdapi.db)
 
 (defonce default-db
-  {:page :home})
+  {:page :home
+   :panel-attr nil
+   :repl-contents {:basic {}
+                   :derived {}
+                   :advance {}}})
