@@ -4,32 +4,74 @@
             [re-frame.core :as rf]
             [jdapi.util :refer [indexed]]))
 
-(defn colored-div []
-  [:div
-   {:style {:background "red"
-            :color      "white"}}
-   "COLORED div"])
-
-(defn a-button []
-  (let []
+(defn side-bar []
+  (let [visible (r/atom true)]
     (fn []
-      [:> se/Button
-       "Click Here"])))
-
-
-(defn menu []
-  [:> se/Menu
-   [:> se/Menu.Item
-    {:name     "editorials"
-     :on-click (fn [e] (js/console.log "on-click"))}
-    "Editorials"]
-
-   [:> se/Menu.Item
-    {:name     "editorials"
-     :on-click (fn [] (js/console.log "on-click"))}
-    [:span {:style {:color "blue"}} "Menu 2"]]])
-
-
+       [:> se/Sidebar.Pushable
+        {:as se/Segment}
+        [:> se/Sidebar
+         
+         {
+          :as        se/Menu
+          :animation "overlay"
+          :icon      "labeled"
+          :inverted  true
+          :vertical  true
+          :visible   @visible
+          :width     "thin"
+          }
+         [:> se/Menu.Item
+          [:> se/Header
+           {:style {:color "gray"}}
+           "API管理后台"]
+          ]
+         [:> se/Menu.Item
+          [:> se/Header
+           {:style {:font-size "20px"
+                    :color     "white"}}
+           "基础API"]
+          [:> se/Menu
+           {:vertical true
+            :compact   true
+            :fluid     true
+            }
+           [:> se/Menu.Item "第一行"]
+           [:> se/Menu.Item "第二行"]
+           [:> se/Menu.Item "第三行"]
+           ]
+          ]
+         [:> se/Menu.Item
+          [:> se/Header
+           {:style {:font-size "20px"
+                    :color     "white"}}
+           "衍生API"]
+          [:> se/Menu
+           { :vertical true
+            :compact   true
+            :fluid     true
+            }
+           [:> se/Menu.Item "第一行"]
+           [:> se/Menu.Item "第二行"]
+           [:> se/Menu.Item "第三行"]
+           ]
+          ]
+         [:> se/Menu.Item
+          [:> se/Header
+           {:style {:font-size "20px"
+                    :color     "white"}}
+           "高级API"]
+          [:> se/Menu
+           { :vertical true
+            :compact   true
+            :fluid     true
+            }
+           [:> se/Menu.Item "第一行"]
+           [:> se/Menu.Item "第二行"]
+           [:> se/Menu.Item "第三行"]
+           ]
+          ]]
+   ])))
+>>>>>>> yang
 
 (defn text-area-form []
   (let [val (r/atom "")]
@@ -418,9 +460,19 @@
                 (rf/dispatch [:mock-api-list]))}
    "api-list"])
 
+(defn a-div []
+  [:> se/Container
+   [text-area-form]
+   [feedback-message]
+   [side-bar]
+   [side-push]
+   [container]
+   [table-message]
+   ])
 
 (defn home-page []
   #_[:div.home "HOME"]
+
   [:div
    [mock-pool]
    [container]])
