@@ -7,6 +7,12 @@
                           after debug trim-v
                           path console]]))
 
+(def defaults-db
+  {:basic    [{:name "basic-1"}
+              {:name "basic-2"}]
+   :derived  [{:name "derived-1"}]
+   :advanced [{:name "advanced-1"}]})
+
 (reg-event-db
   :initialize-db
   (fn [_ _]
@@ -25,10 +31,7 @@
 (reg-event-db
  :mock-api-list
  (fn [db _]
-   (assoc db :api-list {:basic    [{:name "basic-1"}
-                                   {:name "basic-2"}]
-                        :derived  [{:name "derived-1"}]
-                        :advanced [{:name "advanced-1"}]})))
+   (assoc db :api-list defaults-db)))
 
 (reg-sub
  :basic-api-list
@@ -89,10 +92,5 @@
  :set-item-name
  (fn [db [_ category index value]]
    (update-in db [:api-list category]
-              #_(fn [lst]
-                (vec
-                 (concat (take index lst)
-                         (list (assoc (get lst index) :name value))
-                         (drop (inc index) lst))))
               (fn [v]
                 (assoc-in v [index :name] value)))))

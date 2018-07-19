@@ -129,7 +129,8 @@
                    {:width "4"}
                    [:> se/Icon
                     {:name     "minus"
-                     :on-click (fn [e] (rf/dispatch [:remove-from-list :basic index]))}]]
+                     :on-click (fn [e]
+                                 (rf/dispatch [:remove-from-list :basic index]))}]]
                   [:> se/Grid.Column {:width "8"}
                    (:name item)]
                   [:> se/Grid.Column {:width "4"}
