@@ -22,13 +22,19 @@
  (fn [db _]
    (:repl-input db)))
 
+
 (reg-event-db
  :mock-api-list
  (fn [db _]
    (assoc db :api-list {:basic    [{:name "basic-1"}
-                                   {:name "basic-2"}]
-                        :derived  [{:name "derived-1"}]
-                        :advanced [{:name "advanced-1"}]})))
+                                   {:name "basic-2"}
+                                   {:name "basic-3"}]
+                        :derived  [{:name "derived-1"}
+                                   {:name "derived-2"}
+                                   {:name "derived-3"}]
+                        :advanced [{:name "advanced-1"}
+                                   {:name "advanced-2"}
+                                   {:name "advanced-3"}]})))
 
 (reg-sub
  :basic-api-list
@@ -39,6 +45,11 @@
  :derived-api-list
  (fn [db _]
    (get-in db [:api-list :derived])))
+
+(reg-sub
+ :advanced-api-list
+ (fn [db _]
+   (get-in db [:api-list :advanced])))
 
 (reg-sub
  :page
