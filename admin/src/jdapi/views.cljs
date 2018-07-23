@@ -1,9 +1,9 @@
-
 (ns jdapi.views
   (:require ["semantic-ui-react" :as se]
             [reagent.core :as r]
             [re-frame.core :as rf]
-            [jdapi.util :refer [indexed]]))
+            [jdapi.util :refer [indexed]]
+            [cljs.reader :refer [read-string]]))
 
 (defn text-area-form [[category index]]
   (let [repl-val (r/atom "")
