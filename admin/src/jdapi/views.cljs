@@ -167,7 +167,7 @@
                                              :on-blur   (fn [e]
                                                           (reset! show-input false)
                                                           (when-not (empty? @val)
-                                                            (rf/dispatch [:append-to-list :derived @val])))}])}))])
+                                                            (rf/dispatch [:append-to-list :basic @val])))}])}))])
             [:> se/Menu.Item
              {:on-click #(reset! show-input true)}
              [:> se/Icon
@@ -250,21 +250,32 @@
                      [:> se/Grid.Column {:width "8"} (:name item)]
                      [:> se/Grid.Column {:width "4"}]])])))
             (when @show-input
-              [(let [!ref (atom nil)]
+              [(let [!ref (atom nil) default-val "未命名"
+                     l (rf/subscribe [:api-list])
+                     vals (->> @l
+                               (map :name)
+                               (filter (fn [s] (str/starts-with? s "未命名-")))
+                               (map (fn [s] (str/replace-first s "未命名-" "")))
+                              （filter (fn [s] (number? (read-string s)))）
+                               (map read-string))]
+                         (if (empty? vals)
+                         "未命名"
+                         (str "未命名-" (inc (apply max vals))))
                  (r/create-class
-                  {:component-did-mount (fn []
-                                          (some-> @!ref .focus))
-                   :reagent-render     (fn []
-                                         [:> se/Input
-                                          {:ref       (fn [com] (reset! !ref com))
-                                           :value     @val
-                                           :size      "mini"                                              
-                                           :on-change (fn [e]
-                                                        (reset! val (-> e .-target .-value)))
-                                           :on-blur   (fn [e]
-                                                        (reset! show-input false)
-                                                        (when-not (empty? @val)
-                                                          (rf/dispatch [:append-to-list :advanced @val])))}])}))])
+                  {:component-will-mount (fn [](reset! val @default-val))
+                   :component-did-mount  (fn []
+                                           (some-> @!ref .focus))
+                   :reagent-render       (fn []
+                                           [:> se/Input
+                                            {:ref       (fn [com] (reset! !ref com))
+                                             :value     @val
+                                             :size      "mini"
+                                             :on-change (fn [e]
+                                                          (reset! val (-> e .-target .-value)))
+                                             :on-blur   (fn [e]
+                                                          (reset! show-input false)
+                                                          (when-not (empty? @val)
+                                                            (rf/dispatch [:append-to-list :derived @val])))}])}))])
             [:> se/Menu.Item
              {:on-click #(reset! show-input true)}
              [:> se/Icon
@@ -346,22 +357,33 @@
                      [:> se/Grid.Column {:width "4"}]
                      [:> se/Grid.Column {:width "8"} (:name item)]
                      [:> se/Grid.Column {:width "4"}]])])))
-            (when @show-input
-              [(let [!ref (atom nil)]
+             (when @show-input
+              [(let [!ref (atom nil) default-val "未命名"
+                     l (rf/subscribe [:api-list])
+                     vals (->> @l
+                               (map :name)
+                               (filter (fn [s] (str/starts-with? s "未命名-")))
+                               (map (fn [s] (str/replace-first s "未命名-" "")))
+                              （filter (fn [s] (number? (read-string s)))）
+                               (map read-string))]
+                         (if (empty? vals)
+                         "未命名"
+                         (str "未命名-" (inc (apply max vals))))
                  (r/create-class
-                  {:component-did-mount (fn []
-                                          (some-> @!ref .focus))
-                   :reagent-render     (fn []
-                                         [:> se/Input
-                                          {:ref       (fn [com] (reset! !ref com))
-                                           :value     @val
-                                           :size      "mini"                                              
-                                           :on-change (fn [e]
-                                                        (reset! val (-> e .-target .-value)))
-                                           :on-blur   (fn [e]
-                                                        (reset! show-input false)
-                                                        (when-not (empty? @val)
-                                                          (rf/dispatch [:append-to-list :advanced @val])))}])}))])
+                  {:component-will-mount (fn [](reset! val @default-val))
+                   :component-did-mount  (fn []
+                                           (some-> @!ref .focus))
+                   :reagent-render       (fn []
+                                           [:> se/Input
+                                            {:ref       (fn [com] (reset! !ref com))
+                                             :value     @val
+                                             :size      "mini"
+                                             :on-change (fn [e]
+                                                          (reset! val (-> e .-target .-value)))
+                                             :on-blur   (fn [e]
+                                                          (reset! show-input false)
+                                                          (when-not (empty? @val)
+                                                            (rf/dispatch [:append-to-list :advanced @val])))}])}))])
             [:> se/Menu.Item
              {:on-click #(reset! show-input true)}
              [:> se/Icon
