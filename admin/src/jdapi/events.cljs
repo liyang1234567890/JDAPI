@@ -176,3 +176,4 @@
                (get-in db [:panel-attr 0])
                (get-in db [:panel-attr 1])
                :note])))
+
