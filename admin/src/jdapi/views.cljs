@@ -144,7 +144,7 @@
                      [:> se/Grid.Column {:width "4"}]])])))
             (when @show-input
               [(let [!ref (atom nil) default-val "未命名"
-                     l (rf/subscribe [:api-list])
+                     l (rf/subscribe [:basic-api-list])
                      vals (->> @l
                                (map :name)
                                (filter (fn [s] (str/starts-with? s "未命名-")))
@@ -252,7 +252,7 @@
                      [:> se/Grid.Column {:width "4"}]])])))
             (when @show-input
               [(let [!ref (atom nil) default-val "未命名"
-                     l (rf/subscribe [:api-list])
+                     l (rf/subscribe [:derived-api-list])
                      vals (->> @l
                                (map :name)
                                (filter (fn [s] (str/starts-with? s "未命名-")))
@@ -360,7 +360,7 @@
                      [:> se/Grid.Column {:width "4"}]])])))
              (when @show-input
               [(let [!ref (atom nil) default-val "未命名"
-                     l (rf/subscribe [:api-list])
+                     l (rf/subscribe [:advanced-api-list])
                      vals (->> @l
                                (map :name)
                                (filter (fn [s] (str/starts-with? s "未命名-")))
