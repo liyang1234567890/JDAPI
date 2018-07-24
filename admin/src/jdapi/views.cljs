@@ -3,7 +3,8 @@
             [reagent.core :as r]
             [re-frame.core :as rf]
             [jdapi.util :refer [indexed]]
-            [cljs.reader :refer [read-string]]))
+            [cljs.reader :refer [read-string]]
+            [clojure.string :as str]))
 
 (defn text-area-form [[category index]]
   (let [repl-val (r/atom "")
@@ -27,7 +28,7 @@
                :value       @repl-val
                :on-change   (fn [e]
                               (reset! repl-val (-> e .-target .-value)))
-               }]
+               }]  
              [:> se/TextArea
               {
                :placeholder "备注："
@@ -148,8 +149,8 @@
                                (map :name)
                                (filter (fn [s] (str/starts-with? s "未命名-")))
                                (map (fn [s] (str/replace-first s "未命名-" "")))
-                              （filter (fn [s] (number? (read-string s)))）
-                               (map read-string))]
+                               (filter (fn [s] (number? (read-string s))))
+                               (map read-string))] 
                          (if (empty? vals)
                          "未命名"
                          (str "未命名-" (inc (apply max vals))))
@@ -256,7 +257,7 @@
                                (map :name)
                                (filter (fn [s] (str/starts-with? s "未命名-")))
                                (map (fn [s] (str/replace-first s "未命名-" "")))
-                              （filter (fn [s] (number? (read-string s)))）
+                               (filter (fn [s] (number? (read-string s))))
                                (map read-string))]
                          (if (empty? vals)
                          "未命名"
@@ -364,7 +365,7 @@
                                (map :name)
                                (filter (fn [s] (str/starts-with? s "未命名-")))
                                (map (fn [s] (str/replace-first s "未命名-" "")))
-                              （filter (fn [s] (number? (read-string s)))）
+                               (filter (fn [s] (number? (read-string s))))
                                (map read-string))]
                          (if (empty? vals)
                          "未命名"
