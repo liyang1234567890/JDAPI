@@ -2,75 +2,8 @@
   (:require ["semantic-ui-react" :as se]
             [reagent.core :as r]
             [re-frame.core :as rf]
-            [jdapi.util :refer [indexed]]))
-
-#_(defn side-bar []
-    (let [visible (r/atom true)]
-      (fn []
-        [:> se/Sidebar.Pushable
-         {:as se/Segment}
-         [:> se/Sidebar
-          
-          {
-           :as        se/Menu
-           :animation "overlay"
-           :icon      "labeled"
-           :inverted  true
-           :vertical  true
-           :visible   @visible
-           :width     "thin"
-           }
-          [:> se/Menu.Item
-           [:> se/Header
-            {:style {:color "gray"}}
-            "API管理后台"]
-           ]
-          [:> se/Menu.Item
-           [:> se/Header
-            {:style {:font-size "20px"
-                     :color     "white"}}
-            "基础API"]
-           [:> se/Menu
-            {:vertical true
-             :compact  true
-             :fluid    true
-             }
-            [:> se/Menu.Item "第一行"]
-            [:> se/Menu.Item "第二行"]
-            [:> se/Menu.Item "第三行"]
-            ]
-           ]
-          [:> se/Menu.Item
-           [:> se/Header
-            {:style {:font-size "20px"
-                     :color     "white"}}
-            "衍生API"]
-           [:> se/Menu
-            { :vertical true
-             :compact   true
-             :fluid     true
-             }
-            [:> se/Menu.Item "第一行"]
-            [:> se/Menu.Item "第二行"]
-            [:> se/Menu.Item "第三行"]
-            ]
-           ]
-          [:> se/Menu.Item
-           [:> se/Header
-            {:style {:font-size "20px"
-                     :color     "white"}}
-            "高级API"]
-           [:> se/Menu
-            { :vertical true
-             :compact   true
-             :fluid     true
-             }
-            [:> se/Menu.Item "第一行"]
-            [:> se/Menu.Item "第二行"]
-            [:> se/Menu.Item "第三行"]
-            ]
-           ]]
-         ])))
+            [jdapi.util :refer [indexed]]
+            [cljs.reader :refer [read-string]]))
 
 (defn text-area-form [[category index]]
   (let [repl-val (r/atom "")
@@ -78,7 +11,7 @@
         repl     (rf/subscribe [:repl-val])
         note     (rf/subscribe [:note-val])]
     (if (or (nil? category) (nil? index))
-      [:div "empty page"]
+      [:div ]
       (r/create-class
        {:component-will-receive-props (fn [el]
                                         (reset! repl-val (or @repl ""))
@@ -170,7 +103,6 @@
                                               {:ref       (fn [com] (reset! !ref com))
                                                :value     @edit-val
                                                :size      "mini"
-                                               :focus     true
                                                :on-change (fn [e]
                                                             (reset! edit-val (-> e .-target .-value)))
                                                :on-blur   (fn [e]
@@ -192,13 +124,13 @@
                     [:> se/Grid
                      {:columns "16"}
                      [:> se/Grid.Column
-                      {:width "5"}
+                      {:width "4"}
                       [:> se/Icon
                        {:name     "minus"
                         :on-click (fn [e] (rf/dispatch [:remove-from-list :basic index]))}]]
-                     [:> se/Grid.Column {:width "6"}
+                     [:> se/Grid.Column {:width "8"}
                       (:name item)]
-                     [:> se/Grid.Column {:width "5"}
+                     [:> se/Grid.Column {:width "4"}
                       [:> se/Icon
                        {:name     "edit"
                         :on-click (fn [e]
@@ -206,202 +138,256 @@
                                     (reset! edit-val (:name item))
                                     (rf/dispatch [:set-edit-item :basic index]))}]]]
                     [:> se/Grid {:columns "16"}
-                     [:> se/Grid.Column {:width "5"}]
-                     [:> se/Grid.Column {:width "6"} (:name item)]
-                     [:> se/Grid.Column {:width "5"}]])])))
+                     [:> se/Grid.Column {:width "4"}]
+                     [:> se/Grid.Column {:width "8"} (:name item)]
+                     [:> se/Grid.Column {:width "4"}]])])))
             (when @show-input
-              [:> se/Input
-               {:value     @val
-                :size      "mini"
-                :focus     true
-                :on-change (fn [e]
-                             (reset! val (-> e .-target .-value)))
-                :on-blur   (fn [e]
-                             (reset! show-input false)
-                             (when-not (empty? @val)
-                               (rf/dispatch [:append-to-list :basic @val])))}])
+              [(let [!ref (atom nil) default-val "未命名"
+                     l (rf/subscribe [:api-list])
+                     vals (->> @l
+                               (map :name)
+                               (filter (fn [s] (str/starts-with? s "未命名-")))
+                               (map (fn [s] (str/replace-first s "未命名-" "")))
+                              （filter (fn [s] (number? (read-string s)))）
+                               (map read-string))]
+                         (if (empty? vals)
+                         "未命名"
+                         (str "未命名-" (inc (apply max vals))))
+                 (r/create-class
+                  {:component-will-mount (fn [](reset! val @default-val))
+                   :component-did-mount  (fn []
+                                           (some-> @!ref .focus))
+                   :reagent-render       (fn []
+                                           [:> se/Input
+                                            {:ref       (fn [com] (reset! !ref com))
+                                             :value     @val
+                                             :size      "mini"
+                                             :on-change (fn [e]
+                                                          (reset! val (-> e .-target .-value)))
+                                             :on-blur   (fn [e]
+                                                          (reset! show-input false)
+                                                          (when-not (empty? @val)
+                                                            (rf/dispatch [:append-to-list :basic @val])))}])}))])
             [:> se/Menu.Item
              {:on-click #(reset! show-input true)}
              [:> se/Icon
               {:name "add"}]]])]))))
 
-(defn derived-api-list []
-  (let [derived     (rf/subscribe [:derived-api-list])
+(defn  derived-api-list []
+  (let [derived       (rf/subscribe [:derived-api-list])
         show-input  (r/atom false)
         val         (r/atom "未命名")
         active-item (rf/subscribe [:active-item])
         edit-item   (rf/subscribe [:edit-item])
-        edit-val    (r/atom "")]
+        edit-val    (r/atom "")
+        panel-attr  (rf/subscribe [:active-panel-attr])]
     (fn []
-      [:> se/Menu.Item
-       [:> se/Menu.Header
-        {:style {:font-size   "20px"
-                 :font-weight "normal"
-                 :font-family "Yuanti SC"
-                 :color       "#999"}}
-        "衍生API"]
-       (let [[active-category active-index] @active-item
-             [edit-categroy edit-index]     @edit-item]
-         [:> se/Menu.Menu
-          {:style {:background "rgba(0,0,0,0)"}}
-          (doall
-           (for [[index item] (indexed @derived)
-                 :let         [active (and (= :derived active-category)
-                                           (= index active-index))]]
-             (if (and (= :derived edit-categroy)
-                      (= index edit-index))
-               ^{:key (str "edit" index)}
-               [(let [!ref (atom nil)]
-                  (r/create-class
-                   {:display-name        "autofocus-edit"
-                    :component-did-mount (fn []
+      (let [[panel-category panel-key] @panel-attr]
+        [:> se/Menu.Item
+         [:> se/Menu.Header
+          {:style {:font-size   "20px"
+                   :font-weight "normal"
+                   :font-family "Yuanti SC"
+                   :color       "#999"}}
+          "衍生API"]
+         (let [[active-category active-index] @active-item
+               [edit-categroy edit-index]     @edit-item]
+           [:> se/Menu.Menu
+            {:style {:background "rgba(0,0,0,0)"}}
+            (doall
+             (for [[index item] (indexed @derived)
+                   :let         [active (and (= :derived active-category)
+                                             (= index active-index))]]
+               (if (and (= :derived edit-categroy)
+                        (= index edit-index))
+                 ^{:key (str "edit" index)}
+                 [(let [!ref (atom nil)]
+                    (r/create-class
+                     {:display-name        "autofocus-edit"
+                      :component-did-mount (fn []
+                                             (some-> @!ref .focus))
+                      :reagent-render      (fn []
+                                             [:> se/Input
+                                              {:ref       (fn [com] (reset! !ref com))
+                                               :value     @edit-val
+                                               :size      "mini"
+                                               :on-change (fn [e]
+                                                            (reset! edit-val (-> e .-target .-value)))
+                                               :on-blur   (fn [e]
+                                                            (rf/dispatch [:set-edit-item :derived nil])
+                                                            (when-not (empty? @edit-val)
+                                                              (rf/dispatch [:set-item-name :derived index @edit-val]))
+                                                            (reset! edit-val ""))}])}))]
+                 ^{:key (str "item" index)}
+                 [:> se/Menu.Item
+                  {:active         (and (= :derived panel-category) (= index panel-key))
+                   :style          {:text-align "center"}
+                   :on-click       (fn [e]
+                                     (rf/dispatch [:set-active-panel :derived index]))
+                   :on-mouse-enter (fn [e]
+                                     (rf/dispatch [:set-active-item :derived index]))
+                   :on-mouse-leave (fn [e]
+                                     (rf/dispatch [:set-active-item :derived nil]))}
+                  (if active
+                    [:> se/Grid
+                     {:columns "16"}
+                     [:> se/Grid.Column
+                      {:width "4"}
+                      [:> se/Icon
+                       {:name     "minus"
+                        :on-click (fn [e] (rf/dispatch [:remove-from-list :derived index]))}]]
+                     [:> se/Grid.Column {:width "8"}
+                      (:name item)]
+                     [:> se/Grid.Column {:width "4"}
+                      [:> se/Icon
+                       {:name     "edit"
+                        :on-click (fn [e]
+                                    (js/console.log (:name item))
+                                    (reset! edit-val (:name item))
+                                    (rf/dispatch [:set-edit-item :derived index]))}]]]
+                    [:> se/Grid {:columns "16"}
+                     [:> se/Grid.Column {:width "4"}]
+                     [:> se/Grid.Column {:width "8"} (:name item)]
+                     [:> se/Grid.Column {:width "4"}]])])))
+            (when @show-input
+              [(let [!ref (atom nil) default-val "未命名"
+                     l (rf/subscribe [:api-list])
+                     vals (->> @l
+                               (map :name)
+                               (filter (fn [s] (str/starts-with? s "未命名-")))
+                               (map (fn [s] (str/replace-first s "未命名-" "")))
+                              （filter (fn [s] (number? (read-string s)))）
+                               (map read-string))]
+                         (if (empty? vals)
+                         "未命名"
+                         (str "未命名-" (inc (apply max vals))))
+                 (r/create-class
+                  {:component-will-mount (fn [](reset! val @default-val))
+                   :component-did-mount  (fn []
                                            (some-> @!ref .focus))
-                    :reagent-render      (fn []
+                   :reagent-render       (fn []
                                            [:> se/Input
                                             {:ref       (fn [com] (reset! !ref com))
-                                             :value     @edit-val
+                                             :value     @val
                                              :size      "mini"
-                                             :focus     true
                                              :on-change (fn [e]
-                                                          (reset! edit-val (-> e .-target .-value)))
+                                                          (reset! val (-> e .-target .-value)))
                                              :on-blur   (fn [e]
-                                                          (rf/dispatch [:set-edit-item :derived nil])
-                                                          (when-not (empty? @edit-val)
-                                                            (rf/dispatch [:set-item-name :derived index @edit-val]))
-                                                          (reset! edit-val ""))}])}))]
-               ^{:key (str "item" index)}
-               [:> se/Menu.Item
-                {:style          {:text-align "center"}
-                 :on-mouse-enter (fn [e]
-                                   (rf/dispatch [:set-active-item :derived index]))
-                 :on-mouse-leave (fn [e]
-                                   (rf/dispatch [:set-active-item :derived nil]))}
-                (if active
-                  [:> se/Grid
-                   {:columns "16"}
-                   [:> se/Grid.Column
-                    {:width "4"}
-                    [:> se/Icon
-                     {:name     "minus"
-                      :on-click (fn [e] (rf/dispatch [:remove-from-list :derived index]))}]]
-                   [:> se/Grid.Column {:width "8"}
-                    (:name item)]
-                   [:> se/Grid.Column {:width "4"}
-                    [:> se/Icon
-                     {:name     "edit"
-                      :on-click (fn [e]
-                                  (js/console.log (:name item))
-                                  (reset! edit-val (:name item))
-                                  (rf/dispatch [:set-edit-item :derived index]))}]]]
-                  [:> se/Grid {:columns "16"}
-                   [:> se/Grid.Column {:width "4"}]
-                   [:> se/Grid.Column {:width "8"} (:name item)]
-                   [:> se/Grid.Column {:width "4"}]])])))
-          (when @show-input
-            [:> se/Input
-             {:value     @val
-              :size      "mini"
-              :focus     true
-              :on-change (fn [e]
-                           (reset! val (-> e .-target .-value)))
-              :on-blur   (fn [e]
-                           (reset! show-input false)
-                           (when-not (empty? @val)
-                             (rf/dispatch [:append-to-list :derived @val])))}])
-          [:> se/Menu.Item
-           {:on-click #(reset! show-input true)}
-           [:> se/Icon
-            {:name "add"}]]])])))
+                                                          (reset! show-input false)
+                                                          (when-not (empty? @val)
+                                                            (rf/dispatch [:append-to-list :derived @val])))}])}))])
+            [:> se/Menu.Item
+             {:on-click #(reset! show-input true)}
+             [:> se/Icon
+              {:name "add"}]]])]))))
 
 (defn advanced-api-list []
-  (let [advanced    (rf/subscribe [:advanced-api-list])
+  (let [advanced       (rf/subscribe [:advanced-api-list])
         show-input  (r/atom false)
         val         (r/atom "未命名")
         active-item (rf/subscribe [:active-item])
         edit-item   (rf/subscribe [:edit-item])
-        edit-val    (r/atom "")]
+        edit-val    (r/atom "")
+        panel-attr  (rf/subscribe [:active-panel-attr])]
     (fn []
-      [:> se/Menu.Item
-       [:> se/Menu.Header
-        {:style {:font-size   "20px"
-                 :font-weight "normal"
-                 :font-family "Yuanti SC"
-                 :color       "#999"}}
-        "高级API"]
-       (let [[active-category active-index] @active-item
-             [edit-categroy edit-index]     @edit-item]
-         [:> se/Menu.Menu
-          {:style {:background "rgba(0,0,0,0)"}}
-          (doall
-           (for [[index item] (indexed @advanced)
-                 :let         [active (and (= :advanced active-category)
-                                           (= index active-index))]]
-             (if (and (= :advanced edit-categroy)
-                      (= index edit-index))
-               ^{:key (str "edit" index)}
-               [(let [!ref (atom nil)]
-                  (r/create-class
-                   {:display-name        "autofocus-edit"
-                    :component-did-mount (fn []
+      (let [[panel-category panel-key] @panel-attr]
+        [:> se/Menu.Item
+         [:> se/Menu.Header
+          {:style {:font-size   "20px"
+                   :font-weight "normal"
+                   :font-family "Yuanti SC"
+                   :color       "#999"}}
+          "高级API"]
+         (let [[active-category active-index] @active-item
+               [edit-categroy edit-index]     @edit-item]
+           [:> se/Menu.Menu
+            {:style {:background "rgba(0,0,0,0)"}}
+            (doall
+             (for [[index item] (indexed @advanced)
+                   :let         [active (and (= :advanced active-category)
+                                             (= index active-index))]]
+               (if (and (= :advanced edit-categroy)
+                        (= index edit-index))
+                 ^{:key (str "edit" index)}
+                 [(let [!ref (atom nil)]
+                    (r/create-class
+                     {:display-name        "autofocus-edit"
+                      :component-did-mount (fn []
+                                             (some-> @!ref .focus))
+                      :reagent-render      (fn []
+                                             [:> se/Input
+                                              {:ref       (fn [com] (reset! !ref com))
+                                               :value     @edit-val
+                                               :size      "mini"
+                                               :on-change (fn [e]
+                                                            (reset! edit-val (-> e .-target .-value)))
+                                               :on-blur   (fn [e]
+                                                            (rf/dispatch [:set-edit-item :advanced nil])
+                                                            (when-not (empty? @edit-val)
+                                                              (rf/dispatch [:set-item-name :advanced index @edit-val]))
+                                                            (reset! edit-val ""))}])}))]
+                 ^{:key (str "item" index)}
+                 [:> se/Menu.Item
+                  {:active         (and (= :advanced panel-category) (= index panel-key))
+                   :style          {:text-align "center"}
+                   :on-click       (fn [e]
+                                     (rf/dispatch [:set-active-panel :advanced index]))
+                   :on-mouse-enter (fn [e]
+                                     (rf/dispatch [:set-active-item :advanced index]))
+                   :on-mouse-leave (fn [e]
+                                     (rf/dispatch [:set-active-item :advanced nil]))}
+                  (if active
+                    [:> se/Grid
+                     {:columns "16"}
+                     [:> se/Grid.Column
+                      {:width "4"}
+                      [:> se/Icon
+                       {:name     "minus"
+                        :on-click (fn [e] (rf/dispatch [:remove-from-list :advanced index]))}]]
+                     [:> se/Grid.Column {:width "8"}
+                      (:name item)]
+                     [:> se/Grid.Column {:width "4"}
+                      [:> se/Icon
+                       {:name     "edit"
+                        :on-click (fn [e]
+                                    (js/console.log (:name item))
+                                    (reset! edit-val (:name item))
+                                    (rf/dispatch [:set-edit-item :advanced index]))}]]]
+                    [:> se/Grid {:columns "16"}
+                     [:> se/Grid.Column {:width "4"}]
+                     [:> se/Grid.Column {:width "8"} (:name item)]
+                     [:> se/Grid.Column {:width "4"}]])])))
+             (when @show-input
+              [(let [!ref (atom nil) default-val "未命名"
+                     l (rf/subscribe [:api-list])
+                     vals (->> @l
+                               (map :name)
+                               (filter (fn [s] (str/starts-with? s "未命名-")))
+                               (map (fn [s] (str/replace-first s "未命名-" "")))
+                              （filter (fn [s] (number? (read-string s)))）
+                               (map read-string))]
+                         (if (empty? vals)
+                         "未命名"
+                         (str "未命名-" (inc (apply max vals))))
+                 (r/create-class
+                  {:component-will-mount (fn [](reset! val @default-val))
+                   :component-did-mount  (fn []
                                            (some-> @!ref .focus))
-                    :reagent-render      (fn []
+                   :reagent-render       (fn []
                                            [:> se/Input
                                             {:ref       (fn [com] (reset! !ref com))
-                                             :value     @edit-val
+                                             :value     @val
                                              :size      "mini"
-                                             :focus     true
                                              :on-change (fn [e]
-                                                          (reset! edit-val (-> e .-target .-value)))
+                                                          (reset! val (-> e .-target .-value)))
                                              :on-blur   (fn [e]
-                                                          (rf/dispatch [:set-edit-item :advanced nil])
-                                                          (when-not (empty? @edit-val)
-                                                            (rf/dispatch [:set-item-name :advanced index @edit-val]))
-                                                          (reset! edit-val ""))}])}))]
-               ^{:key (str "item" index)}
-               [:> se/Menu.Item
-                {:style          {:text-align "center"}
-                 :on-mouse-enter (fn [e]
-                                   (rf/dispatch [:set-active-item :advanced index]))
-                 :on-mouse-leave (fn [e]
-                                   (rf/dispatch [:set-active-item :advanced nil]))}
-                (if active
-                  [:> se/Grid
-                   {:columns "16"}
-                   [:> se/Grid.Column
-                    {:width "4"}
-                    [:> se/Icon
-                     {:name     "minus"
-                      :on-click (fn [e] (rf/dispatch [:remove-from-list :advanced index]))}]]
-                   [:> se/Grid.Column {:width "8"}
-                    (:name item)]
-                   [:> se/Grid.Column {:width "4"}
-                    [:> se/Icon
-                     {:name     "edit"
-                      :on-click (fn [e]
-                                  (js/console.log (:name item))
-                                  (reset! edit-val (:name item))
-                                  (rf/dispatch [:set-edit-item :advanced index]))}]]]
-                  [:> se/Grid {:columns "16"}
-                   [:> se/Grid.Column {:width "4"}]
-                   [:> se/Grid.Column {:width "8"} (:name item)]
-                   [:> se/Grid.Column {:width "4"}]])])))
-          (when @show-input
-            [:> se/Input
-             {:value     @val
-              :size      "mini"
-              :focus     true
-              :on-change (fn [e]
-                           (reset! val (-> e .-target .-value)))
-              :on-blur   (fn [e]
-                           (reset! show-input false)
-                           (when-not (empty? @val)
-                             (rf/dispatch [:append-to-list :advanced @val])))}])
-          [:> se/Menu.Item
-           {:on-click #(reset! show-input true)}
-           [:> se/Icon
-            {:name "add"}]]   ])])))
-
-
+                                                          (reset! show-input false)
+                                                          (when-not (empty? @val)
+                                                            (rf/dispatch [:append-to-list :advanced @val])))}])}))])
+            [:> se/Menu.Item
+             {:on-click #(reset! show-input true)}
+             [:> se/Icon
+              {:name "add"}]]])]))))
 
 (defn side-bar []
   (let [visible    (r/atom true)
