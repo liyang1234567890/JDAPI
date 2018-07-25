@@ -1,0 +1,10 @@
+{
+  "jydb":{
+    "host": "localhost",
+    "port" : 3306,
+    "user" : "jiudou",
+    "password": "1234qwer",
+    "db": "stock_data"
+  },
+  "datapath": "./data/"
+}

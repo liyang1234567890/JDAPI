@@ -630,10 +630,12 @@ goodwill(Rowid, Goodwill):-
 % 长期应收款 longtermreceivableaccount
 total_receivable(Rowid, TotalReceivable):-
     stock_balance(Secucode, Rowid, Enddate, Pubdate, IfAdjusted, IfMerged, SeWithoutmi, Accountreceivable, Billreceivable, Otherreceivable, Longtermreceivableaccount, Goodwill, Developmentexpenditure, Intangibleassets, Epreferstock, Eperpetualdebt, Longtermloan, Bondspayable, Totalcurrentassets, Totalcurrentliability),
-    null_to_0(Acountreceivable, A1),
+
+    null_to_0(Accountreceivable, A1),
     null_to_0(Billreceivable, B1),
     null_to_0(Otherreceivable, Other1),
     null_to_0(Longtermreceivableaccount, Lterm1),
+
     TotalReceivable is A1 + B1 + Other1 + Lterm1.
 
 %% 规则： 总的应收占营收LTM比例不超过 50%
@@ -643,7 +645,10 @@ receivable_revenue_ratio(Rowid, TheDay, Secucode, R):-
     good_receivable_revenue_ratio_bar(Bar),
     total_receivable(Rowid, TotalReceivable),
     ninr_ltm(TheDay, Secucode, NiLTM, NrLTM),
+    %write('NrLTM:'), write(NrLTM), write('\n'),
+    %write('Total Receivi:'), write(TotalReceivable), write('\n'),
     R is TotalReceivable / NrLTM.
+
 
 good_receivable_revenue_ratio(Ratio, 1):-
     good_receivable_revenue_ratio_bar(Bar),
@@ -696,7 +701,10 @@ working_capital(Rowid, WC):-
 
     null_to_0(Totalcurrentassets, CurAssets),
     null_to_0(Totalcurrentliability, CurLiability),
-    WC is CurAssets - CurLiability.
+    write('CurAssets:'), write(CurAssets),write('\n'),
+    write('CurLiability:'), write(CurLiability),write('\n'),
+    WC is CurAssets - CurLiability,
+    write('WC:'), write(WC),write('\n').
 %% WC > 0
 
 % LT debt:长期债
@@ -710,7 +718,10 @@ lt_debt(Rowid, Debt):-
 
     null_to_0(Longtermloan, Loan),
     null_to_0(Bondspayable, Bond),
-    Debt is Loan + Bond.
+    Debt is Loan + Bond,
+    write('Longtermloan:'), write(Longtermloan),write('\n'),
+    write('Bondspayable:'), write(Bondspayable),write('\n'),
+    write('Debt:'), write(Debt),write('\n').
 
 % WC / LT Debt   描述流动性, 越高越好
 %
@@ -805,4 +816,5 @@ test(TheDay, Secucode, Enddate, Rs):-
 
 
 %% 000518
-%% TheDay = '2018/07/13', Secucode='000002', Enddate='2018/03/31',    balance_report_by_q(TheDay, Secucode, Enddate, Rowid, Asset),    receivable_revenue_ratio(Rowid, TheDay, Secucode, R1),  good_receivable_revenue_ratio(R1, Res1),    balance_current_ratio(Rowid, R2),    good_balance_current_ratio(R2, Res2), virtual_assets_ratio(Rowid, R3),    good_virtual_assets_ratio(R3, Res3),wc_div_lt_debt(Rowid, WC, Debt, R4),    good_wc_div_lt_debt(WC, Debt, Res4).
+%% TheDay = '2018/07/13', Secucode='000022', Enddate='2018/03/31',    balance_report_by_q(TheDay, Secucode, Enddate, Rowid, Asset),    receivable_revenue_ratio(Rowid, TheDay, Secucode, R1), good_receivable_revenue_ratio(R1, Res1),    balance_current_ratio(Rowid, R2),    good_balance_current_ratio(R2, Res2), virtual_assets_ratio(Rowid, R3),    good_virtual_assets_ratio(R3, Res3),wc_div_lt_debt(Rowid, WC, Debt, R4),    good_wc_div_lt_debt(WC, Debt, Res4).
+% TheDay = '2018/07/13', Secucode='000022', Enddate='2018/03/31',  reasonable_finance(TheDay, Secucode, Enddate, [Secucode, [R1, Res1], [R2, Res2], [R3, Res3], [R4, Res4]]).

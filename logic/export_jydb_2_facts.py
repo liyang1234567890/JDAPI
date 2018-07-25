@@ -1,25 +1,32 @@
 #!/usr/bin/env python3
 #coding=utf-8
 
-# 一只股票在 将JYDB中的各个表导出成prolog fact的格式
-# 开发测试使用 000651 格力电器
-
+"""
+usage: python3 export_jydb_2_facts.py config_file_path
+"""
 
 import MySQLdb
+import json
+import sys
 
-
-db = MySQLdb.connect("localhost", "jiudou", "1234qwer", "stock_data", charset='utf8' )
 
 allsecs = []
 
-def export_SecuMain_All():
+def load_config():
+    cfg_path = sys.argv[1]
+
+    cfg = json.load(open(cfg_path))
+    return cfg
+
+
+def export_SecuMain_All(db):
     cur = db.cursor()
     cur.execute("select SecuCode, InnerCode, CompanyCode, SecuMarket, Secucategory, Listedsector, Listedstate from SecuMain where SecuMarket in (83, 90) and secucategory=1 and listedsector in (1,2, 6) and listedstate in (1, 3) order by SecuCode")
     for row in cur.fetchall():
         #print("secuinfo('%s', %d, %d, '%s', '%s')." % (row[0], row[1], row[2], row[3], row[4]))
         print("secuinfo('%s', %d, %d, %d, %d, %d, %d)." % (row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
         allsecs.append(row[:3])
-        
+
 def export_Quote(innercode, secucode):
     cur = db.cursor()
     cur.execute("select ID, TradingDay, PrevClosePrice, OpenPrice, HighPrice, LowPrice, ClosePrice, TurnoverVolume, TurnoverValue, TurnoverDeals from QT_DailyQuote where innercode=%d order by TradingDay" % innercode)
@@ -293,14 +300,24 @@ def test1():
 
     export_stock_info(secucode, innercode, companycode)
 
-def main():
-    export_SecuMain_All()
+def main(db):
+    export_SecuMain_All(db)
     for item in allsecs:
         # secu, inner, company
         secucode = item[0]
         innercode = item[1]
         companycode = item[2]
-        export_stock_info(secucode, innercode, companycode)
+        #export_stock_info(secucode, innercode, companycode)
+        print(secucode)
 if __name__=='__main__':
-    main()
+    cfg = load_config()
+
+    db = MySQLdb.connect(cfg['jydb']['host'],
+                         cfg['jydb']['user'],
+                         cfg['jydb']['password'],
+                         cfg['jydb']['db'],
+                         charset='utf8' )
+
+    main(db)
+    db.close()
 
