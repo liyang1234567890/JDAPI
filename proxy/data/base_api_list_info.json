@@ -1,0 +1,15 @@
+{
+  "status" : true,
+    "data" : [
+        {
+            "name" : "PE",
+            "chiname" : "市盈率",
+            "desc" : "定义：市盈率 = 市值 / 净利"
+        },
+        {
+            "name" : "PB",
+            "chiname" : "市净率",
+            "desc" : "定义：市净率 = 市值 / 净资产;"
+        }
+    ]
+}
