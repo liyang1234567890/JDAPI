@@ -135,6 +135,7 @@ def convert_colvalue(v, col_type):
 
     return vs
 
+# no use.
 def export_detail(rowid, secucode):
     rowid = 578114682280  # for dev
     cur = db.cursor()
@@ -166,7 +167,7 @@ def export_reports(companycode, secucode):
 
 
     # cashflow
-    """
+
     cur = db.cursor()
     cur.execute("select id, enddate, infopubldate, ifadjusted, ifmerged, netoperatecashflow from LC_CashFlowStatementAll where companycode=%d order by enddate desc limit 5" % companycode)
 
@@ -175,7 +176,7 @@ def export_reports(companycode, secucode):
               (secucode, row[0], row[1].strftime("%Y/%m/%d"), row[2].strftime("%Y/%m/%d"), row[3], row[4], row[5]))
 
     cur.close()
-    """
+
 
 
     # balancesheet
@@ -214,7 +215,7 @@ def export_reports(companycode, secucode):
 
 
     # fast
-    """
+
     cur = db.cursor()
     cur.execute("select id, enddate, infopubldate, mark, periodmark, sewithoutmi, npparentcompanyowners, OperatingRevenue, TotalProfit, NetProfitCut from LC_PerformanceLetters where companycode=%d" % companycode)
 
@@ -250,7 +251,7 @@ def export_reports(companycode, secucode):
                ))
     cur.close()
 
-    """
+
     
     # incomestatement
 
@@ -271,12 +272,10 @@ def export_reports(companycode, secucode):
 def export_stock_info(secucode, innercode, companycode):
     export_reports(companycode, secucode)
 
-    #export_shares(companycode, secucode)
-    #export_Quote(innercode, secucode)
-    #export_dividends(innercode, secucode)
+    export_shares(companycode, secucode)
+    export_Quote(innercode, secucode)
+    export_dividends(innercode, secucode)
 
-
-    #export_detail(companycode, secucode)
 
 def test1():
     export_SecuMain_All()
