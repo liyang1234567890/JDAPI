@@ -149,7 +149,7 @@
  (fn [{:keys [db]} [_ category index val]]
    (merge (make-request
            {:method     :post
-            :uri        "xxx"
+            :uri        " http://beta.joudou.com/apisrv/secudata/query"
             :params     {:repl (:repl val)}
             :on-success [:on-repl-run-success category index val]})
           {:dispatch {:on-repl-save category index val}})))
